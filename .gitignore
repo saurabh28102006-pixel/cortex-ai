@@ -1,0 +1,40 @@
+# =========================
+# Dependencies
+# =========================
+node_modules/
+**/node_modules/
+
+# =========================
+# Environment Files
+# =========================
+# =========================
+# Environment Files
+# =========================
+.env
+.env.*
+**/.env
+**/.env.*
+!.env.example
+!**/.env.example
+
+# =========================
+# Temporary upload directory
+# =========================
+temp/
+**/temp/
+backend/services/agent/temp/
+
+# =========================
+# Firebase & Secrets
+# =========================
+serviceAccountKey.json
+**/serviceAccountKey.json
+firebase-adminsdk*.json
+**/firebase-adminsdk*.json
+*.pem
+
+# =========================
+# Misc
+# =========================
+.cache/
+tmp/
