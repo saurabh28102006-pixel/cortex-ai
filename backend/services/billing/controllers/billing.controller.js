@@ -3,8 +3,11 @@ import { PLANS } from "../config/Plans.js"
 import razorpay from "../config/razorpay.js"
 import Payment from "../models/payment.model.js"
 import crypto from "crypto"
+import connectDb from "../config/db.js"
+
 export const createOrder = async (req, res) => {
     try {
+        await connectDb()
         const { plan } = req.body
         const userId = req.headers["x-user-id"]
         const selectedPlan = PLANS[plan]
