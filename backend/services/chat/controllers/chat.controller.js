@@ -1,8 +1,10 @@
 import Conversation from "../models/coversation.model.js"
 import Message from "../models/message.model.js"
+import connectDb from "../config/db.js"
 
 export const createConversation = async (req, res) => {
   try {
+    await connectDb()
     const userId = req.headers["x-user-id"]
     if (!userId) {
       return res.status(401).json({ message: "Unauthorized: Missing user ID" })
@@ -21,6 +23,7 @@ export const createConversation = async (req, res) => {
 
 export const getConversations = async (req, res) => {
   try {
+    await connectDb()
     const userId = req.headers["x-user-id"]
     if (!userId) {
       return res.status(401).json({ message: "Unauthorized: Missing user ID" })
@@ -38,6 +41,7 @@ export const getConversations = async (req, res) => {
 
 export const updateConversation = async (req, res) => {
   try {
+    await connectDb()
     const { id, title } = req.body
     if (!id) {
       return res.status(400).json({ message: "Conversation ID is required" })
@@ -57,6 +61,7 @@ export const updateConversation = async (req, res) => {
 
 export const saveMessage = async (req, res) => {
   try {
+    await connectDb()
     const { conversationId, role, content, images, artifacts } = req.body
     if (!conversationId) {
       return res.status(400).json({ message: "conversationId is required" })
@@ -70,7 +75,9 @@ export const saveMessage = async (req, res) => {
       artifacts: artifacts || []
     })
 
-    await Conversation.findByIdAndUpdate(conversationId, { updatedAt: new Date() })
+    try {
+      await Conversation.findByIdAndUpdate(conversationId, { updatedAt: new Date() })
+    } catch { }
 
     return res.status(200).json(message)
   } catch (error) {
@@ -80,6 +87,7 @@ export const saveMessage = async (req, res) => {
 
 export const getMessages = async (req, res) => {
   try {
+    await connectDb()
     const { conversationId } = req.params
     if (!conversationId) {
       return res.status(400).json({ message: "conversationId is required" })

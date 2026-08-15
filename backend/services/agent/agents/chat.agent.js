@@ -58,7 +58,8 @@ Answer the user using only the above search results.
         new SystemMessage(systemPrompt)
     ]
 
-    history.forEach(msg => {
+    const safeHistory = Array.isArray(history) ? history : []
+    safeHistory.forEach(msg => {
         if (msg.role == "user") {
             messages.push(new HumanMessage(msg.content))
         }
@@ -69,26 +70,18 @@ Answer the user using only the above search results.
 
     messages.push(new HumanMessage(state.prompt))
 
-
-
-
-
     const response = await llm.invoke(messages)
-      await deductCredits(state.userId,"chat")
-   
+    await deductCredits(state.userId, "chat")
+
     return {
         ...state,
         aiResponse: response.content,
-        
     }
     } catch (error) {
-        console.log(error)
-         return {
+        console.error("Chat agent error:", error)
+        return {
             ...state,
-            aiResponse:error?.data?.message || "failed to generate chat"
+            aiResponse: error?.data?.message || error?.message || "Failed to generate response."
         }
-        
-    
     }
-   
 }
