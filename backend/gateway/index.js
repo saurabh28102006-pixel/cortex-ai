@@ -13,12 +13,20 @@ dotenv.config()
 const port = process.env.PORT || 8000
 const app = express()
 
-app.use(cors({
-    origin: (origin, callback) => callback(null, true),
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization", "Cookie", "x-user-id"]
-}))
+// Robust CORS & Preflight handler
+app.use((req, res, next) => {
+    const origin = req.headers.origin || "*"
+    res.header("Access-Control-Allow-Origin", origin)
+    res.header("Access-Control-Allow-Credentials", "true")
+    res.header("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS")
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization, Cookie, x-user-id")
+
+    if (req.method === "OPTIONS") {
+        return res.sendStatus(204)
+    }
+    next()
+})
+
 app.use(morgan("dev"))
 app.use(cookieParser())
 
@@ -30,10 +38,31 @@ app.get("/health", (req, res) => {
     res.json({ status: "healthy" })
 })
 
-app.use("/api/auth", proxy(process.env.AUTH_SERVICE || "http://localhost:8001"))
-app.use("/api/chat", protect, proxyWithHeader(process.env.CHAT_SERVICE || "http://localhost:8002"))
-app.use("/api/agent", protect, proxyWithHeader(process.env.AGENT_SERVICE || "http://localhost:8003"))
-app.use("/api/billing", protect, proxyWithHeader(process.env.BILLING_SERVICE || "http://localhost:8004"))
+const createProxy = (targetUrl) => {
+    const target = targetUrl || "http://localhost:8001"
+    return proxy(target, {
+        proxyReqOptDecorator: (proxyReqOpts, srcReq) => {
+            if (srcReq.user) {
+                proxyReqOpts.headers["x-user-id"] = srcReq.user.userId
+            }
+            return proxyReqOpts
+        },
+        userResHeaderDecorator: (headers, userReq) => {
+            headers["Access-Control-Allow-Origin"] = userReq.headers.origin || "*"
+            headers["Access-Control-Allow-Credentials"] = "true"
+            return headers
+        },
+        proxyErrorHandler: (err, res) => {
+            console.error(`Proxy error connecting to ${target}:`, err.message)
+            return res.status(502).json({ message: "Service temporarily unavailable. Please verify service URLs.", error: err.message })
+        }
+    })
+}
+
+app.use("/api/auth", createProxy(process.env.AUTH_SERVICE || "http://localhost:8001"))
+app.use("/api/chat", protect, createProxy(process.env.CHAT_SERVICE || "http://localhost:8002"))
+app.use("/api/agent", protect, createProxy(process.env.AGENT_SERVICE || "http://localhost:8003"))
+app.use("/api/billing", protect, createProxy(process.env.BILLING_SERVICE || "http://localhost:8004"))
 app.get("/api/me", protect, getCurrentUser)
 
 app.listen(port, () => {
