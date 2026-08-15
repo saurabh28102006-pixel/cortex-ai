@@ -1,12 +1,15 @@
 import mongoose from "mongoose"
 
-const connectDb=async ()=>{
+const connectDb = async () => {
     try {
-       await mongoose.connect(process.env.MONGODB_URI) 
-       console.log("db connected")
+        if (!process.env.MONGODB_URI) {
+            console.warn("MONGODB_URI not provided")
+            return
+        }
+        await mongoose.connect(process.env.MONGODB_URI) 
+        console.log("auth db connected")
     } catch (error) {
-       console.error("db connection error:", error)
-       process.exit(1)
+        console.error("auth db connection error:", error.message)
     }
 }
 

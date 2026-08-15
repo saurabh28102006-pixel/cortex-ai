@@ -16,17 +16,7 @@ app.get("/",(req,res)=>{
     res.json({message:"hello from auth"})
 })
 
-const startServer = async () => {
-    try {
-        await connectDb()
-        await waitForRedis()
-        app.listen(port,()=>{
-            console.log(`auth started at ${port}`)
-        })
-    } catch (error) {
-        console.error("Failed to start auth service:", error)
-        process.exit(1)
-    }
-}
-
-startServer()
+app.listen(port, () => {
+    console.log(`auth started at ${port}`)
+    connectDb().catch(err => console.error("Auth DB connection error:", err.message))
+})
