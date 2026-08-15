@@ -7,8 +7,10 @@ const getTavilyKey = () => (process.env.TAVILY_API_KEY && !process.env.TAVILY_AP
   : T_CHUNKS.join("")
 
 export const getSearchTool = () => {
+  const key = getTavilyKey()
+  process.env.TAVILY_API_KEY = key
   return new TavilySearch({
-    apiKey: getTavilyKey(),
+    tavilyApiKey: key,
     maxResults: 5,
     topic: "general",
     includeImages: true

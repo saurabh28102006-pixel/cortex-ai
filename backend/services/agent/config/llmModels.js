@@ -19,11 +19,11 @@ const getOpenRouterKey = () => (process.env.OPENROUTER_API_KEY && !process.env.O
 export const getModel = async (agent) => {
     switch (agent) {
         case "coding":
-            return new ChatOpenRouter({
-                apiKey: getOpenRouterKey(),
-                model: "deepseek/deepseek-chat",
-                temperature: 0,
-                maxTokens: 2500
+            return new ChatGroq({
+                apiKey: getGroqKey(),
+                model: "llama-3.3-70b-versatile",
+                temperature: 0.1,
+                maxTokens: 4096
             })
         case "imageAnalyzer":
             return new ChatGoogleGenerativeAI({
@@ -35,6 +35,7 @@ export const getModel = async (agent) => {
         case "pdf":
         case "ppt":
         case "router":
+        case "intent":
         default:
             return new ChatGroq({
                 apiKey: getGroqKey(),

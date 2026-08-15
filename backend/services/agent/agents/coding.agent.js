@@ -88,36 +88,51 @@ Rules:
 
 User Request:
 ${state.prompt}
-        ` 
-        const res=await llm.invoke(prompt)
+`
+        const res = await llm.invoke(prompt)
         let rawContent = (res?.content || "").trim()
-        if (rawContent.startsWith("```json")) {
-            rawContent = rawContent.slice(7)
-        } else if (rawContent.startsWith("```")) {
-            rawContent = rawContent.slice(3)
+        
+        // Robust JSON extractor
+        let clean = rawContent
+        if (clean.includes("```json")) {
+            clean = clean.split("```json")[1].split("```")[0]
+        } else if (clean.includes("```")) {
+            clean = clean.split("```")[1].split("```")[0]
         }
-        if (rawContent.endsWith("```")) {
-            rawContent = rawContent.slice(0, -3)
+        const firstBrace = clean.indexOf("{")
+        const lastBrace = clean.lastIndexOf("}")
+        if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+            clean = clean.substring(firstBrace, lastBrace + 1)
         }
-        rawContent = rawContent.trim()
-        const data=JSON.parse(rawContent)
-        await deductCredits(state.userId,"coding")
+
+        let data
+        try {
+            data = JSON.parse(clean)
+        } catch {
+            data = {
+                files: [
+                    { name: "index.html", content: rawContent }
+                ]
+            }
+        }
+
+        await deductCredits(state.userId, "coding")
         
         return {
             ...state,
-            aiResponse:"Code Generated Successfully.",
-            artifacts:[
+            aiResponse: "Code Generated Successfully.",
+            artifacts: [
                 {
-                    id:Date.now(),
-                    type:"Project",
-                    files:data.files || [],
-                    title:state.prompt
+                    id: Date.now(),
+                    type: "Project",
+                    files: data.files || [],
+                    title: state.prompt
                 }
             ]
         }
     }
 
-    const res=await llm.invoke(`
+    const res = await llm.invoke(`
         The user's request is:
 
 ${intent}
@@ -145,7 +160,7 @@ User Request:
 ${state.prompt}
         `)
 
-   const data=res.content   
+   const data = res.content   
    await deductCredits(state.userId,"coding")
    
    return {

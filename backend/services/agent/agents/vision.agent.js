@@ -35,32 +35,36 @@ ${state.prompt}
 
         `)
 
-const prompt=res.content.trim()
+const prompt = res.content.trim()
+const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}`
 
-const imageUrl=`https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}`
-
-const imageRes=await axios.get(imageUrl,{responseType:"arraybuffer"})
-await deductCredits(state.userId,"vision")
-const buffer=Buffer.from(imageRes.data)
-const filename=`image-${Date.now()}.png`
-
-await uploadToS3(filename,buffer,"image/png")
-const downloadUrl=await getFromS3(filename,24*60)
+let downloadUrl = imageUrl
+try {
+    const imageRes = await axios.get(imageUrl, { responseType: "arraybuffer", timeout: 15000 })
+    await deductCredits(state.userId, "vision")
+    const buffer = Buffer.from(imageRes.data)
+    const filename = `image-${Date.now()}.png`
+    await uploadToS3(filename, buffer, "image/png")
+    downloadUrl = await getFromS3(filename, 24 * 60)
+} catch (s3Err) {
+    console.warn("S3 upload fallback for vision, using direct image URL:", s3Err.message)
+    await deductCredits(state.userId, "vision")
+}
 
 return {
     ...state,
-    aiResponse:`
+    images: [downloadUrl],
+    aiResponse: `
 ![Generated Image](${downloadUrl})
 
 📥 [Download Image](${downloadUrl})
-
-⏳ Link expires in 10 minutes.`
+`
 }
     } catch (error) {
-       console.log(error)
+       console.error("Vision agent error:", error)
          return {
             ...state,
-            aiResponse:error?.data?.message || "failed to generate image"
+            aiResponse: error?.data?.message || error?.message || "Failed to generate image"
         }
     }
    
