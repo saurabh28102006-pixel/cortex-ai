@@ -59,7 +59,7 @@ const createProxy = (targetUrl) => {
     })
 }
 
-app.use("/api/auth", createProxy(process.env.AUTH_SERVICE || "http://localhost:8001"))
+app.use("/api/auth", createProxy(process.env.AUTH_SERVICE || "https://cortex-auth-6382.onrender.com"))
 app.use("/api/chat", protect, createProxy(process.env.CHAT_SERVICE || "http://localhost:8002"))
 app.use("/api/agent", protect, createProxy(process.env.AGENT_SERVICE || "http://localhost:8003"))
 app.use("/api/billing", protect, createProxy(process.env.BILLING_SERVICE || "http://localhost:8004"))

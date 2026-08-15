@@ -62,7 +62,8 @@ export const verifyPayment = async (req,res) => {
  payment.paymentId=razorpay_payment_id
  await payment.save()
 
- const {data}=await axios.post(`${process.env.AUTH_SERVICE}/update-plan`,{userId:payment.userId,plan:payment.plan,credits:payment.credits})
+ const authServiceUrl = process.env.AUTH_SERVICE || "https://cortex-auth-6382.onrender.com"
+ const {data} = await axios.post(`${authServiceUrl}/update-plan`, { userId: payment.userId, plan: payment.plan, credits: payment.credits })
  console.log(data)
 
  return res.status(200).json({message:"Payment Verified"})
