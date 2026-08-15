@@ -3,6 +3,7 @@ import { app } from "../config/firebase.js"
 import User from "../models/user.model.js"
 import redis from "../../../shared/redis/redis.js"
 import crypto from "crypto"
+import connectDb from "../config/db.js"
 
 const COOKIE_OPTIONS = {
     httpOnly: true,
@@ -18,6 +19,8 @@ export const login = async (req, res) => {
         if (!token) {
             return res.status(400).json({ message: "Token is required" })
         }
+
+        await connectDb()
 
         const decoded = await getAuth(app).verifyIdToken(token)
         let user = await User.findOne({
