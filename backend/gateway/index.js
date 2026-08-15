@@ -14,8 +14,10 @@ const port = process.env.PORT || 8000
 const app = express()
 
 app.use(cors({
-    origin: process.env.FRONTEND_URL || true,
-    credentials: true
+    origin: (origin, callback) => callback(null, true),
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "Cookie", "x-user-id"]
 }))
 app.use(morgan("dev"))
 app.use(cookieParser())

@@ -6,9 +6,15 @@ import cookieParser from "cookie-parser"
 import { waitForRedis } from "../../shared/redis/redis.js"
 dotenv.config()
 
+import cors from "cors"
+
 const port = process.env.PORT || 8001
 
-const app=express()
+const app = express()
+app.use(cors({
+    origin: (origin, callback) => callback(null, true),
+    credentials: true
+}))
 app.use(express.json())
 app.use(cookieParser())
 app.use("/",router)
