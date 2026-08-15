@@ -21,7 +21,7 @@ services:
       - key: BILLING_SERVICE
         sync: false
       - key: REDIS_URL
-        sync: false
+        value: rediss://default:gQAAAAAAASvuAAIgcDE2YmRiYTM5NTI2NTg0MjA0OGQ5OTJiY2M2N2ZkZGMxMg@equipped-tortoise-76782.upstash.io:6379
       - key: FRONTEND_URL
         sync: false
 
@@ -41,7 +41,7 @@ services:
       - key: MONGODB_URI
         sync: false
       - key: REDIS_URL
-        sync: false
+        value: rediss://default:gQAAAAAAASvuAAIgcDE2YmRiYTM5NTI2NTg0MjA0OGQ5OTJiY2M2N2ZkZGMxMg@equipped-tortoise-76782.upstash.io:6379
       - key: FIREBASE_PROJECT_ID
         sync: false
       - key: FIREBASE_CLIENT_EMAIL
@@ -79,7 +79,7 @@ services:
       - key: NODE_ENV
         value: production
       - key: REDIS_URL
-        sync: false
+        value: rediss://default:gQAAAAAAASvuAAIgcDE2YmRiYTM5NTI2NTg0MjA0OGQ5OTJiY2M2N2ZkZGMxMg@equipped-tortoise-76782.upstash.io:6379
       - key: CHAT_SERVICE
         sync: false
       - key: AUTH_SERVICE

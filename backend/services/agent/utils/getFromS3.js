@@ -6,10 +6,9 @@ export const getFromS3=async (filename,expiresIn=600)=>{
   return await getSignedUrl(
     s3,
     new GetObjectCommand({
-        Bucket:process.env.AWS_BUCKET_NAME,
-        Key:filename
-    }
-    ),
-    {expiresIn}
+        Bucket: process.env.AWS_BUCKET_NAME || process.env.S3_BUCKET_NAME || "cortex-ai-agent-662182610213-ap-south-1-an",
+        Key: filename
+    }),
+    { expiresIn }
   )
 }

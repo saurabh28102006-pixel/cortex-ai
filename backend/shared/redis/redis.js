@@ -1,6 +1,7 @@
 import Redis from "ioredis"
 
-const redis = new Redis(process.env.REDIS_URL || "redis://localhost:6379")
+const UPSTASH_REDIS_URL = "rediss://default:gQAAAAAAASvuAAIgcDE2YmRiYTM5NTI2NTg0MjA0OGQ5OTJiY2M2N2ZkZGMxMg@equipped-tortoise-76782.upstash.io:6379"
+const redis = new Redis(process.env.REDIS_URL || UPSTASH_REDIS_URL)
 
 redis.on("connect",()=>{
     console.log("redis connected")

@@ -2,11 +2,8 @@ import mongoose from "mongoose"
 
 const connectDb = async () => {
     try {
-        if (!process.env.MONGODB_URI) {
-            console.warn("MONGODB_URI not provided")
-            return
-        }
-        await mongoose.connect(process.env.MONGODB_URI) 
+        const uri = process.env.MONGODB_URI || "mongodb+srv://saurabh28102006_db_user:UHrBNvOptoNLn6zW@cluster0.bsoubcb.mongodb.net/auth"
+        await mongoose.connect(uri) 
         console.log("auth db connected")
     } catch (error) {
         console.error("auth db connection error:", error.message)
