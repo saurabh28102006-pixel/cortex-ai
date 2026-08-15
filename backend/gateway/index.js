@@ -62,14 +62,26 @@ const createProxy = (targetUrl) => {
     })
 }
 
-const authTarget = (process.env.AUTH_SERVICE && !process.env.AUTH_SERVICE.endsWith("cortex-auth.onrender.com"))
+const authTarget = (process.env.AUTH_SERVICE && !process.env.AUTH_SERVICE.endsWith("cortex-auth.onrender.com") && !process.env.AUTH_SERVICE.includes("localhost"))
     ? process.env.AUTH_SERVICE
     : "https://cortex-auth-6382.onrender.com"
 
+const chatTarget = (process.env.CHAT_SERVICE && !process.env.CHAT_SERVICE.endsWith("cortex-chat.onrender.com") && !process.env.CHAT_SERVICE.includes("localhost"))
+    ? process.env.CHAT_SERVICE
+    : "https://cortex-chat-dx0n.onrender.com"
+
+const agentTarget = (process.env.AGENT_SERVICE && !process.env.AGENT_SERVICE.endsWith("cortex-agent.onrender.com") && !process.env.AGENT_SERVICE.includes("localhost"))
+    ? process.env.AGENT_SERVICE
+    : "https://cortex-agent-f04c.onrender.com"
+
+const billingTarget = (process.env.BILLING_SERVICE && !process.env.BILLING_SERVICE.endsWith("cortex-billing.onrender.com") && !process.env.BILLING_SERVICE.includes("localhost"))
+    ? process.env.BILLING_SERVICE
+    : "https://cortex-billing-zs3c.onrender.com"
+
 app.use("/api/auth", createProxy(authTarget))
-app.use("/api/chat", protect, createProxy(process.env.CHAT_SERVICE || "http://localhost:8002"))
-app.use("/api/agent", protect, createProxy(process.env.AGENT_SERVICE || "http://localhost:8003"))
-app.use("/api/billing", protect, createProxy(process.env.BILLING_SERVICE || "http://localhost:8004"))
+app.use("/api/chat", protect, createProxy(chatTarget))
+app.use("/api/agent", protect, createProxy(agentTarget))
+app.use("/api/billing", protect, createProxy(billingTarget))
 app.get("/api/me", protect, getCurrentUser)
 
 app.listen(port, () => {

@@ -13,9 +13,13 @@ export const agent = async (req, res, next) => {
             return res.status(400).json({ message: "Prompt or file is required" })
         }
 
+        const chatServiceUrl = (process.env.CHAT_SERVICE && !process.env.CHAT_SERVICE.includes("localhost"))
+            ? process.env.CHAT_SERVICE
+            : "https://cortex-chat-dx0n.onrender.com"
+
         if (conversationId) {
             try {
-                await axios.post(`${process.env.CHAT_SERVICE}/save-message`, {
+                await axios.post(`${chatServiceUrl}/save-message`, {
                     conversationId,
                     role: "user",
                     content: finalPrompt
@@ -39,7 +43,7 @@ export const agent = async (req, res, next) => {
             try {
                 await addMessage(conversationId, "user", finalPrompt)
                 await addMessage(conversationId, "assistant", aiResponse)
-                await axios.post(`${process.env.CHAT_SERVICE}/save-message`, {
+                await axios.post(`${chatServiceUrl}/save-message`, {
                     conversationId,
                     role: "assistant",
                     content: aiResponse,
