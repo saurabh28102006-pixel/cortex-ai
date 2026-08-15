@@ -40,7 +40,10 @@ app.get("/health", (req, res) => {
 
 const createProxy = (targetUrl) => {
     const target = targetUrl || "http://localhost:8001"
+    const isHttps = target.startsWith("https://")
     return proxy(target, {
+        https: isHttps,
+        preserveHostHdr: false,
         proxyReqOptDecorator: (proxyReqOpts, srcReq) => {
             if (srcReq.user) {
                 proxyReqOpts.headers["x-user-id"] = srcReq.user.userId
@@ -59,7 +62,11 @@ const createProxy = (targetUrl) => {
     })
 }
 
-app.use("/api/auth", createProxy(process.env.AUTH_SERVICE || "https://cortex-auth-6382.onrender.com"))
+const authTarget = (process.env.AUTH_SERVICE && !process.env.AUTH_SERVICE.endsWith("cortex-auth.onrender.com"))
+    ? process.env.AUTH_SERVICE
+    : "https://cortex-auth-6382.onrender.com"
+
+app.use("/api/auth", createProxy(authTarget))
 app.use("/api/chat", protect, createProxy(process.env.CHAT_SERVICE || "http://localhost:8002"))
 app.use("/api/agent", protect, createProxy(process.env.AGENT_SERVICE || "http://localhost:8003"))
 app.use("/api/billing", protect, createProxy(process.env.BILLING_SERVICE || "http://localhost:8004"))
