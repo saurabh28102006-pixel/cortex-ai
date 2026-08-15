@@ -31,22 +31,32 @@ function Home() {
         checkSession()
     }, [dispatch])
 
+    const [isLoggingIn, setIsLoggingIn] = useState(false)
+    const [loginError, setLoginError] = useState("")
+
     const handleLogin = async (token) => {
         try {
             const { data } = await api.post("/api/auth/login", { token })
             dispatch(setUserdata(data))
         } catch (error) {
             console.error("Login failed:", error)
+            setLoginError(error?.response?.data?.message || "Login failed. Please try again.")
+        } finally {
+            setIsLoggingIn(false)
         }
     }
 
     const googleLogin = async () => {
         try {
+            setIsLoggingIn(true)
+            setLoginError("")
             const data = await signInWithPopup(auth, googleProvider)
             const token = await data.user.getIdToken()
             await handleLogin(token)
         } catch (err) {
             console.error("Google sign in failed:", err)
+            setLoginError(err.message || "Google Sign-in failed.")
+            setIsLoggingIn(false)
         }
     }
 
@@ -64,12 +74,19 @@ function Home() {
                             <p className='text-[13px] text-slate-500'>Please login to continue using the app.</p>
                         </div>
 
+                        {loginError && (
+                            <p className='text-xs text-red-400 bg-red-500/10 border border-red-500/20 p-2.5 rounded-lg'>
+                                {loginError}
+                            </p>
+                        )}
+
                         <button
-                            className='w-full flex items-center justify-center gap-3 py-[11px] rounded-xl text-sm font-medium text-black/90 bg-white hover:bg-gray-200 transition-all duration-150 cursor-pointer'
+                            disabled={isLoggingIn}
+                            className='w-full flex items-center justify-center gap-3 py-[11px] rounded-xl text-sm font-medium text-black/90 bg-white hover:bg-gray-200 disabled:opacity-50 transition-all duration-150 cursor-pointer'
                             onClick={googleLogin}
                         >
                             <FcGoogle size={16} />
-                            Continue With Google
+                            {isLoggingIn ? "Signing in..." : "Continue With Google"}
                         </button>
                     </div>
                 </div>
