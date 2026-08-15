@@ -4,7 +4,7 @@ import connectDb from "./config/db.js"
 import router from "./routes/agent.route.js"
 dotenv.config()
 
-const port =process.env.PORT
+const port = process.env.PORT || 8003
 
 const app=express()
 

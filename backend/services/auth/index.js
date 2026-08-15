@@ -6,7 +6,7 @@ import cookieParser from "cookie-parser"
 import { waitForRedis } from "../../shared/redis/redis.js"
 dotenv.config()
 
-const port =process.env.PORT
+const port = process.env.PORT || 8001
 
 const app=express()
 app.use(express.json())

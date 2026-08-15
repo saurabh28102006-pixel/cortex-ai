@@ -10,13 +10,25 @@ redis.on("error", (err) => {
     console.error("Redis connection error:", err)
 })
 
-export const waitForRedis = () => {
-    return new Promise((resolve, reject) => {
+export const waitForRedis = (timeoutMs = 4000) => {
+    return new Promise((resolve) => {
         if (redis.status === "ready") {
             return resolve()
         }
-        redis.once("ready", resolve)
-        redis.once("error", reject)
+        const timer = setTimeout(() => {
+            console.warn("Redis wait timed out, continuing server boot...")
+            resolve()
+        }, timeoutMs)
+
+        redis.once("ready", () => {
+            clearTimeout(timer)
+            resolve()
+        })
+        redis.once("error", (err) => {
+            console.warn("Redis initial warning:", err.message)
+            clearTimeout(timer)
+            resolve()
+        })
     })
 }
 

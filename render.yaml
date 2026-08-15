@@ -6,7 +6,7 @@ services:
     plan: free
     rootDir: backend
     buildCommand: npm install && cd gateway && npm install
-    startCommand: node gateway/index.js
+    startCommand: cd gateway && node index.js
     envVars:
       - key: PORT
         value: 10000
@@ -32,7 +32,7 @@ services:
     plan: free
     rootDir: backend
     buildCommand: npm install && cd services/auth && npm install
-    startCommand: node services/auth/index.js
+    startCommand: cd services/auth && node index.js
     envVars:
       - key: PORT
         value: 10000
@@ -56,7 +56,7 @@ services:
     plan: free
     rootDir: backend
     buildCommand: npm install && cd services/chat && npm install
-    startCommand: node services/chat/index.js
+    startCommand: cd services/chat && node index.js
     envVars:
       - key: PORT
         value: 10000
@@ -72,7 +72,7 @@ services:
     plan: free
     rootDir: backend
     buildCommand: npm install && cd services/agent && npm install
-    startCommand: node services/agent/index.js
+    startCommand: cd services/agent && node index.js
     envVars:
       - key: PORT
         value: 10000
@@ -112,7 +112,7 @@ services:
     plan: free
     rootDir: backend
     buildCommand: npm install && cd services/billing && npm install
-    startCommand: node services/billing/index.js
+    startCommand: cd services/billing && node index.js
     envVars:
       - key: PORT
         value: 10000
