@@ -17,29 +17,37 @@ const getOpenRouterKey = () => (process.env.OPENROUTER_API_KEY && !process.env.O
     : OR_CHUNKS.join("")
 
 export const getModel = async (agent) => {
+    const openRouterKey = getOpenRouterKey()
     switch (agent) {
         case "coding":
-            return new ChatGroq({
-                apiKey: getGroqKey(),
-                model: "llama-3.3-70b-versatile",
+            return new ChatOpenRouter({
+                apiKey: openRouterKey,
+                model: "openai/gpt-4o-mini",
                 temperature: 0.1,
                 maxTokens: 4096
             })
         case "imageAnalyzer":
-            return new ChatGoogleGenerativeAI({
-                apiKey: process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || "dummy-gemini-key",
-                model: "gemini-2.5-flash"
+            return new ChatOpenRouter({
+                apiKey: openRouterKey,
+                model: "openai/gpt-4o-mini"
+            })
+        case "pdf":
+        case "ppt":
+            return new ChatOpenRouter({
+                apiKey: openRouterKey,
+                model: "openai/gpt-4o-mini",
+                temperature: 0.2
             })
         case "chat":
         case "search":
-        case "pdf":
-        case "ppt":
         case "router":
         case "intent":
+        case "image":
         default:
-            return new ChatGroq({
-                apiKey: getGroqKey(),
-                model: "llama-3.3-70b-versatile"
+            return new ChatOpenRouter({
+                apiKey: openRouterKey,
+                model: "openai/gpt-4o-mini",
+                temperature: 0.3
             })
     }
 }
