@@ -128,10 +128,10 @@ function ChatInput() {
   const canSend = Boolean((value.trim() || selectedFile) && !isLoading)
 
   return (
-    <div className='w-full overflow-hidden px-3 md:px-5 py-4 border-t border-white/[0.06] bg-[#0d0f14]'>
-      <div className='flex flex-col gap-2 bg-white/[0.03] border border-white/[0.07] rounded-2xl px-4 pt-3.5 pb-3'>
+    <div className='w-full overflow-hidden px-2.5 sm:px-4 md:px-5 py-2.5 sm:py-4 border-t border-white/[0.06] bg-[#0d0f14]'>
+      <div className='flex flex-col gap-1.5 sm:gap-2 bg-white/[0.03] border border-white/[0.07] rounded-2xl px-3 sm:px-4 pt-2.5 sm:pt-3.5 pb-2 sm:pb-3'>
 
-        <div className='flex w-full gap-2 pr-2 flex-wrap'>
+        <div className='flex items-center gap-1.5 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden flex-nowrap w-full'>
           {agents.map((agent) => {
             const isActive = selectedAgent === agent.label
             const Icon = agent.icon
@@ -145,11 +145,11 @@ function ChatInput() {
                   cursor-pointer
                   inline-flex
                   items-center
-                  gap-1.5
-                  px-3
-                  py-1.5
+                  gap-1 sm:gap-1.5
+                  px-2.5 sm:px-3
+                  py-1 sm:py-1.5
                   rounded-full
-                  text-xs
+                  text-[11px] sm:text-xs
                   font-medium
                   border
                   transition-all
@@ -159,7 +159,7 @@ function ChatInput() {
                   }
                 `}
               >
-                <Icon size={14} className={isActive ? "text-white" : "text-slate-500"} />
+                <Icon size={13} className={isActive ? "text-white" : "text-slate-500"} />
                 {agent.label}
               </button>
             )
@@ -167,23 +167,23 @@ function ChatInput() {
         </div>
 
         {selectedFile && (
-          <div className='my-2'>
-            <div className='inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2'>
+          <div className='my-1.5'>
+            <div className='inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-2.5 py-1.5'>
               {selectedFile?.type === "application/pdf" ? (
-                <FileText size={16} className="text-red-400 shrink-0" />
+                <FileText size={15} className="text-red-400 shrink-0" />
               ) : selectedFile.type.startsWith("image/") ? (
-                <img src={URL.createObjectURL(selectedFile)} alt="preview" className="h-10 w-10 rounded-lg object-cover shrink-0" />
+                <img src={URL.createObjectURL(selectedFile)} alt="preview" className="h-8 w-8 sm:h-10 sm:w-10 rounded-lg object-cover shrink-0" />
               ) : (
-                <FileText size={16} className="text-indigo-400 shrink-0" />
+                <FileText size={15} className="text-indigo-400 shrink-0" />
               )}
 
               <div className='min-w-0'>
-                <p className='text-xs text-white truncate max-w-[200px]'>{selectedFile?.name}</p>
+                <p className='text-xs text-white truncate max-w-[150px] sm:max-w-[200px]'>{selectedFile?.name}</p>
                 <p className='text-[10px] text-slate-500'>{Math.ceil(selectedFile.size / 1024)} KB</p>
               </div>
               <button
                 type="button"
-                className='ml-2 text-slate-500 hover:text-white cursor-pointer bg-transparent border-none'
+                className='ml-1 text-slate-500 hover:text-white cursor-pointer bg-transparent border-none p-1'
                 onClick={() => { setSelectedFile(null); if (fileRef.current) fileRef.current.value = "" }}
                 title="Remove file"
               >
@@ -194,16 +194,16 @@ function ChatInput() {
         )}
 
         <textarea
-          placeholder='Ask anything... (Press Enter to send, Shift+Enter for new line)'
+          placeholder='Ask anything... (Press Enter to send)'
           onChange={(e) => setValue(e.target.value)}
           onKeyDown={handleKeyDown}
           value={value}
           disabled={isLoading}
-          className="w-full bg-transparent outline-none resize-none text-[14px] text-slate-200 placeholder:text-slate-600 leading-relaxed [scrollbar-width:none] [&::-webkit-scrollbar]:hidden disabled:opacity-50"
-          rows={3}
+          className="w-full bg-transparent outline-none resize-none text-[13.5px] sm:text-[14px] text-slate-200 placeholder:text-slate-600 leading-relaxed [scrollbar-width:none] [&::-webkit-scrollbar]:hidden disabled:opacity-50"
+          rows={2}
         />
 
-        <div className='flex items-center justify-between'>
+        <div className='flex items-center justify-between pt-1'>
           <div className='flex items-center gap-1'>
             <input
               type="file"
@@ -218,7 +218,7 @@ function ChatInput() {
 
             <button
               type="button"
-              className='flex items-center justify-center w-8 h-8 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/[0.05] border border-transparent hover:border-white/[0.06] transition-all duration-150 bg-transparent cursor-pointer'
+              className='flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/[0.05] border border-transparent hover:border-white/[0.06] transition-all duration-150 bg-transparent cursor-pointer'
               onClick={() => fileRef.current?.click()}
               title="Attach PDF or Image"
             >
@@ -229,7 +229,7 @@ function ChatInput() {
               type="button"
               onClick={toggleMic}
               title={listening ? "Stop Voice Input" : "Start Voice Input"}
-              className={`flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-150 cursor-pointer ${listening ? "bg-red-500 text-white" : "text-slate-400 hover:text-slate-200 hover:bg-white/[0.05]"}`}
+              className={`flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-lg transition-all duration-150 cursor-pointer ${listening ? "bg-red-500 text-white" : "text-slate-400 hover:text-slate-200 hover:bg-white/[0.05]"}`}
             >
               {listening ? <Mic size={16} /> : <MicOff size={16} />}
             </button>
@@ -240,7 +240,7 @@ function ChatInput() {
             disabled={!canSend}
             onClick={handleSendMessage}
             title="Send Message"
-            className={`flex items-center justify-center w-8 h-8 rounded-lg border-none transition-all duration-150 ${canSend ? "bg-linear-to-br from-indigo-500 to-violet-700 hover:opacity-90 text-white cursor-pointer" : "bg-white/[0.05] text-slate-600 cursor-not-allowed"}`}
+            className={`flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-xl border-none transition-all duration-150 ${canSend ? "bg-linear-to-br from-indigo-500 to-violet-700 hover:opacity-90 text-white cursor-pointer shadow-md shadow-indigo-500/20" : "bg-white/[0.05] text-slate-600 cursor-not-allowed"}`}
           >
             <Send size={15} />
           </button>
