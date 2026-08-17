@@ -1,21 +1,29 @@
 import redis from "../../shared/redis/redis.js"
 
-const protect=async (req,res,next) => {
+const protect = async (req, res, next) => {
     try {
-        const sessionId=req.cookies?.session
-        if(!sessionId){
-            return res.status(400).json({message:"unauthorized"})
+        const origin = req.headers.origin || "https://cortex-ai-9pnp.vercel.app"
+        res.header("Access-Control-Allow-Origin", origin)
+        res.header("Access-Control-Allow-Credentials", "true")
+
+        const sessionId = req.cookies?.session
+        if (!sessionId) {
+            return res.status(401).json({ message: "Unauthorized: Please login" })
         }
-        const session=await redis.get(`session-${sessionId}`)
-        console.log(session)
-        if(!session){
-            return res.status(400).json({message:"session expired"})
+        let session
+        try {
+            session = await redis.get(`session-${sessionId}`)
+        } catch (rErr) {
+            console.warn("Redis session lookup warning:", rErr.message)
         }
-        req.user=JSON.parse(session)
+        
+        if (!session) {
+            return res.status(401).json({ message: "Session expired: Please login again" })
+        }
+        req.user = JSON.parse(session)
         next()
-       
     } catch (error) {
-        return res.status(500).json({message:`protect error ${error}`})
+        return res.status(500).json({ message: `Auth error: ${error.message || error}` })
     }
 }
 

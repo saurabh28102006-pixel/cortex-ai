@@ -17,16 +17,13 @@ export const agent = async (req, res, next) => {
             ? process.env.CHAT_SERVICE
             : "https://cortex-chat-dx0n.onrender.com"
 
+        // Asynchronously persist user message without blocking AI start
         if (conversationId) {
-            try {
-                await axios.post(`${chatServiceUrl}/save-message`, {
-                    conversationId,
-                    role: "user",
-                    content: finalPrompt
-                })
-            } catch (err) {
-                console.error("Failed to save user message to chat service:", err.message)
-            }
+            axios.post(`${chatServiceUrl}/save-message`, {
+                conversationId,
+                role: "user",
+                content: finalPrompt
+            }).catch(err => console.warn("Background user msg save:", err.message))
         }
 
         const result = await graph.invoke({
@@ -39,20 +36,17 @@ export const agent = async (req, res, next) => {
 
         const aiResponse = result?.aiResponse || "No response generated."
 
+        // Asynchronously persist assistant response
         if (conversationId) {
-            try {
-                await addMessage(conversationId, "user", finalPrompt)
-                await addMessage(conversationId, "assistant", aiResponse)
-                await axios.post(`${chatServiceUrl}/save-message`, {
-                    conversationId,
-                    role: "assistant",
-                    content: aiResponse,
-                    images: result?.images || [],
-                    artifacts: result?.artifacts || []
-                })
-            } catch (err) {
-                console.error("Failed to save assistant message/memory:", err.message)
-            }
+            addMessage(conversationId, "user", finalPrompt).catch(() => {})
+            addMessage(conversationId, "assistant", aiResponse).catch(() => {})
+            axios.post(`${chatServiceUrl}/save-message`, {
+                conversationId,
+                role: "assistant",
+                content: aiResponse,
+                images: result?.images || [],
+                artifacts: result?.artifacts || []
+            }).catch(err => console.warn("Background assistant msg save:", err.message))
         }
 
         return res.status(200).json({

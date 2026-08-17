@@ -1,21 +1,19 @@
 import express from "express"
 import dotenv from "dotenv"
 import proxy from "express-http-proxy"
-import cors from "cors"
 import cookieParser from "cookie-parser"
 import morgan from "morgan"
 import { getCurrentUser } from "./controllers/user.controller.js"
 import protect from "./middleware/auth.middleware.js"
-import { proxyWithHeader } from "./utils/proxyWithHeader.js"
 
 dotenv.config()
 
 const port = process.env.PORT || 8000
 const app = express()
 
-// Robust CORS & Preflight handler
+// Universal CORS & Preflight handler
 app.use((req, res, next) => {
-    const origin = req.headers.origin || "*"
+    const origin = req.headers.origin || "https://cortex-ai-9pnp.vercel.app"
     res.header("Access-Control-Allow-Origin", origin)
     res.header("Access-Control-Allow-Credentials", "true")
     res.header("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS")
@@ -43,21 +41,28 @@ const createProxy = (targetUrl) => {
     const isHttps = target.startsWith("https://")
     return proxy(target, {
         https: isHttps,
+        timeout: 180000,
         preserveHostHdr: false,
+        parseReqBody: false,
         proxyReqOptDecorator: (proxyReqOpts, srcReq) => {
             if (srcReq.user) {
-                proxyReqOpts.headers["x-user-id"] = srcReq.user.userId
+                proxyReqOpts.headers["x-user-id"] = srcReq.user.userId || srcReq.user._id || "anonymous"
             }
             return proxyReqOpts
         },
         userResHeaderDecorator: (headers, userReq) => {
-            headers["Access-Control-Allow-Origin"] = userReq.headers.origin || "*"
+            headers["Access-Control-Allow-Origin"] = userReq.headers.origin || "https://cortex-ai-9pnp.vercel.app"
             headers["Access-Control-Allow-Credentials"] = "true"
+            headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, PATCH, DELETE, OPTIONS"
+            headers["Access-Control-Allow-Headers"] = "Origin, X-Requested-With, Content-Type, Accept, Authorization, Cookie, x-user-id"
             return headers
         },
-        proxyErrorHandler: (err, res) => {
+        proxyErrorHandler: (err, res, next) => {
             console.error(`Proxy error connecting to ${target}:`, err.message)
-            return res.status(502).json({ message: "Service temporarily unavailable. Please verify service URLs.", error: err.message })
+            const origin = res.req?.headers?.origin || "https://cortex-ai-9pnp.vercel.app"
+            res.header("Access-Control-Allow-Origin", origin)
+            res.header("Access-Control-Allow-Credentials", "true")
+            return res.status(502).json({ message: "Service temporarily waking up or unavailable. Please retry in 5 seconds.", error: err.message })
         }
     })
 }
